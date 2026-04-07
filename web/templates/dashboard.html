@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SmartNet Monitor</title>
+<style>
+body { 
+  font-family: Arial; 
+  background: #f0f2f5; 
+  margin: 20px; 
+}
+h1 { color: #0f3460; }
+
+.stats { 
+  display: flex; 
+  gap: 20px; 
+  margin: 20px 0; 
+}
+
+.card { 
+  background: white; 
+  padding: 20px; 
+  border-radius: 8px; 
+  flex: 1; 
+  text-align: center; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+.card h2 { 
+  font-size: 36px; 
+  margin: 10px 0; 
+}
+
+.danger h2 { 
+  color: #e94560; 
+}
+
+table { 
+  width: 100%; 
+  background: white; 
+  border-collapse: collapse; 
+}
+
+th { 
+  background: #0f3460; 
+  color: white; 
+  padding: 10px; 
+}
+
+td { 
+  padding: 8px; 
+  border-bottom: 1px solid #eee; 
+}
+
+.anom { 
+  background: #fff5f5; 
+  color: #e94560; 
+}
+</style>
+</head>
+
+<body>
+
+<h1>SmartNet Monitor</h1>
+
+<div class="stats">
+  <div class="card">
+    <p>Paquets</p>
+    <h2 id="total">--</h2>
+  </div>
+
+  <div class="card danger">
+    <p>Anomalies</p>
+    <h2 id="anom">--</h2>
+  </div>
+
+  <div class="card">
+    <p>Taux</p>
+    <h2 id="taux">--</h2>
+  </div>
+</div>
+
+<h3>Anomalies detectees</h3>
+
+<table>
+  <tr>
+    <th>Date</th>
+    <th>IP Source</th>
+    <th>IP Dest</th>
+    <th>Port</th>
+    <th>Taille</th>
+  </tr>
+  <tbody id="tbl"></tbody>
+</table>
+
+<script>
+fetch('/api/stats')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('total').textContent = d.total;
+    document.getElementById('anom').textContent = d.anomalies;
+    document.getElementById('taux').textContent = d.taux + '%';
+  });
+
+fetch('/api/anomalies')
+  .then(r => r.json())
+  .then(data => {
+    let t = document.getElementById('tbl');
+    data.forEach(p => {
+      t.innerHTML += `<tr class="anom">
+        <td>${p.timestamp}</td>
+        <td>${p.src_ip}</td>
+        <td>${p.dst_ip}</td>
+        <td>${p.dst_port}</td>
+        <td>${p.taille}</td>
+      </tr>`;
+    });
+  });
+</script>
+
+</body>
+</html>
